@@ -7,7 +7,6 @@ use App\Criteria\MyCriteria;
 use Prettus\Repository\Criteria\RequestCriteria;
 use Prettus\Repository\Contracts\CacheableInterface;
 use Prettus\Repository\Traits\CacheableRepository;
-use App\Validators\PostValidator;
 
 class PostRepository extends BaseRepository implements CacheableInterface
 {
@@ -16,6 +15,7 @@ class PostRepository extends BaseRepository implements CacheableInterface
 
     use CacheableRepository;
 
+    // cac field de search
     protected $fieldSearchable = [
         'title' => 'like',
         'body' => 'like'
@@ -23,17 +23,14 @@ class PostRepository extends BaseRepository implements CacheableInterface
     
     public function boot()
     {
-        $this->pushCriteria(new MyCriteria());
+        // $this->pushCriteria(new MyCriteria());
+
+        // search nhanh
         $this->pushCriteria(app('Prettus\Repository\Criteria\RequestCriteria'));
     }
 
     public function model()
     {
         return "App\\Post";
-    }
-
-    public function validator()
-    {
-        return PostValidator::class;
     }
 }

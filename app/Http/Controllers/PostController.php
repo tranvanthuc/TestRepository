@@ -18,8 +18,8 @@ class PostController extends Controller
     {
         // $posts = $this->repository->all();
         $posts = $this->repository->all();
-        // return view('posts.index', compact('posts'));
-        return json_encode($posts);
+        return view('posts.index', compact('posts'));
+        // return json_encode($posts);
     }
 
     public function show($id)
