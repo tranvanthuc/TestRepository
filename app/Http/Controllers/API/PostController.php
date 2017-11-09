@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Repositories\PostRepository;
 use App\Http\Requests\PostRequest;
+use App\Utils\Functions;
 use Validator;
 
 class PostController extends Controller
@@ -23,7 +24,7 @@ class PostController extends Controller
     public function getAll()
     {
         $posts = $this->repository->all();
-        return response()->json($posts);
+        return $this->success($posts);
     }
 
     
@@ -31,16 +32,18 @@ class PostController extends Controller
     public function create(PostRequest $request)
     {
         $data = $request->all();
+    
         $validator = Validator::make($data, $request->rules());
         if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
-        } else {
+        }
             $post = $this->repository->create($data);
             return response()->json($post);
-        }
     }
 
-    // update
+    /**
+     * update abc
+     */
     public function update(PostRequest $request)
     {
         $data = $request->all();
