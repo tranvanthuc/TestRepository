@@ -13,16 +13,25 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+// Route::middleware('auth:api')->get('/user', function () {
+    
+// });
+
+Route::group(['middleware' => 'auth:api'], function () {
+    Route::post('get-details', 'API\PassportController@getDetails');
 });
 
-
 // ----------------------API-----------------------------
-Route::prefix('posts')->group(function () {
-    Route::get('/', 'PostAPIController@getAll');
-    Route::post('create', 'PostAPIController@create');
-    Route::post('update', 'PostAPIController@update');
-    Route::get('{id}/delete', 'PostAPIController@delete');
-    Route::get('{id}', 'PostAPIController@getById');
+Route::namespace('API')->group(function () {
+    // Controllers Within The "App\Http\Controllers\Admin" Namespace
+    Route::group(['middleware' => 'auth:api', 'prefix' => 'posts'], function () {
+        Route::post('/', 'PostController@getAll');
+        Route::post('create', 'PostController@create');
+        Route::post('update', 'PostController@update');
+        Route::get('{id}/delete', 'PostController@delete');
+        Route::get('{id}', 'PostController@getById');
+    });
+
+    Route::post('login', 'PassportController@login');
+    Route::post('register', 'PassportController@register');
 });
