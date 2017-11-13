@@ -51,4 +51,25 @@ class PassportController extends Controller
         $user = Auth::user();
         return response()->json(['success'=> $user], $this->successStatus);
     }
+
+    /**
+     * authenticated
+     */
+    protected function authenticated(Request $request)
+    {
+        $http = new \GuzzleHttp\Client;
+        
+        $response = $http->post(env('APP_URL') . '/oauth/token', [
+            'form_params' => [
+                'grant_type' => 'password',
+                'client_id' => env('PASSWORD_CLIENT_ID'),
+                'client_secret' => env('PASSWORD_CLIENT_SECRET'),
+                'username' => $request['username'],
+                'password' => $request['password'],
+                'scope' => '',
+            ],
+        ]);
+        
+        return $this->success(json_decode((string) $response->getBody(), true));
+    }
 }

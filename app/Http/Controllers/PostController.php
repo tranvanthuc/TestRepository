@@ -26,7 +26,6 @@ class PostController extends Controller
     {
         // $post = $this->repository->find($id);
         $post = $this->repository->with(['user'])->find($id);
-        dd($post);
         return view('posts.show', compact('post'));
     }
 

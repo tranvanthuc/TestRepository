@@ -32,6 +32,6 @@ Route::namespace('API')->group(function () {
         Route::get('{id}', 'PostController@getById');
     });
 
-    Route::post('login', 'PassportController@login');
+    Route::post('login', 'PassportController@authenticated');
     Route::post('register', 'PassportController@register');
 });

@@ -10,7 +10,7 @@
 
 <body>
 	<a href="/posts">Home</a>
-	<form action="/api/posts/create" method="post">
+	<form action="/posts/create" method="post">
 		{{csrf_field()}}
 		<input type="hidden" name="user_id" value="{{Auth::id()}}">
 		<input type="text" placeholder="Enter title" name="title" autofocus="true">
