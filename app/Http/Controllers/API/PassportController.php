@@ -6,24 +6,11 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Validator;
 use Auth;
+use GuzzleHttp;
 use App\User;
 
 class PassportController extends Controller
 {
-    public $successStatus = 200;
-    // login
-    public function login()
-    {
-        $email = request('email');
-        $password = request('password');
-        if (Auth::attempt(['email' => $email, 'password' => $password])) {
-            $user = Auth::user();
-            $success['token'] = $user->createToken('MyApp')->accessToken;
-            return response()->json(compact('success'), $this->successStatus);
-        } else {
-            return response()->json(['error' => 'Unauthorised'], 401);
-        }
-    }
 
     // register
     public function register()
@@ -40,36 +27,71 @@ class PassportController extends Controller
         $input = request()->all();
         $input['password'] = bcrypt($input['password']);
         $user = User::create($input);
-        $success['token'] = $user->createToken('MyApp')->accessToken;
-        $success['name'] = $user->name;
-        return response()->json(compact('success'), $this->successStatus);
-    }
-
-    // get details
-    public function getDetails()
-    {
-        $user = Auth::user();
-        return response()->json(['success'=> $user], $this->successStatus);
+        return $this->success($user);
     }
 
     /**
-     * authenticated
+     * get current user
      */
-    protected function authenticated(Request $request)
+    public function me()
+    {
+        $user = Auth::user();
+        return $this->success($user);
+    }
+
+    /**
+     * login
+     */
+    public function login(Request $request)
     {
         $http = new \GuzzleHttp\Client;
         
         $response = $http->post(env('APP_URL') . '/oauth/token', [
             'form_params' => [
+                'username' => $request['username'],
+                'password' => $request['password'],
                 'grant_type' => 'password',
                 'client_id' => env('PASSWORD_CLIENT_ID'),
                 'client_secret' => env('PASSWORD_CLIENT_SECRET'),
-                'username' => $request['username'],
-                'password' => $request['password'],
                 'scope' => '',
             ],
         ]);
         
         return $this->success(json_decode((string) $response->getBody(), true));
+    }
+
+    /**
+     * refresh token
+     */
+    public function refreshToken(Request $request)
+    {
+        $http = new GuzzleHttp\Client;
+        
+        $response = $http->post(env('APP_URL') . '/oauth/token', [
+            'form_params' => [
+                'refresh_token' => $request['refresh_token'],
+                'grant_type' => 'refresh_token',
+                'client_id' => env('PASSWORD_CLIENT_ID'),
+                'client_secret' => env('PASSWORD_CLIENT_SECRET'),
+                'scope' => '',
+            ],
+        ]);
+        
+        return $this->success(json_decode((string) $response->getBody(), true));
+    }
+
+    /**
+     * redirect
+     */
+    public function redirect()
+    {
+        $query = http_build_query([
+            'client_id' => env('PASSWORD_CLIENT_ID'),
+            'redirect_uri' => env('APP_URL').'register',
+            'response_type' => 'token',
+            'scope' => '',
+        ]);
+    
+        return redirect(env('APP_URL') .'/oauth/authorize?'.$query);
     }
 }

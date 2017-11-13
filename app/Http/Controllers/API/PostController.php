@@ -23,22 +23,29 @@ class PostController extends Controller
     // get list posts
     public function getAll()
     {
-        $posts = $this->repository->all();
-        return $this->success($posts);
+        try {
+            $posts = $this->repository->all();
+            return $this->success($posts);
+        } catch (\Exception $e) {
+            return $this->error($e->getMessage(), 404);
+        }
     }
 
     
 
     public function create(PostRequest $request)
     {
-        $data = $request->all();
-    
-        $validator = Validator::make($data, $request->rules());
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
-        }
+        try {
+            $data = $request->all();
+            // $validator = Validator::make($data, $request->rules());
+            // if ($validator->fails()) {
+            //     return $this->error($validator->errors(), 422);
+            // }
             $post = $this->repository->create($data);
-            return response()->json($post);
+            return $this->success($post);
+        } catch (\Exception $e) {
+            return $this->error($e->getMessage(), 404);
+        }
     }
 
     /**
@@ -46,26 +53,29 @@ class PostController extends Controller
      */
     public function update(PostRequest $request)
     {
-        $data = $request->all();
-        $id = $request['id'];
-        $rules = array_merge($request->rules(), ['id' => 'required']);
-        $validator = Validator::make($data, $rules);
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
-        } else {
-            $post = $this->repository->update($data, $id);
-            return response()->json($post);
+        try {
+            $data = $request->all();
+            $id = $request['id'];
+            $rules = array_merge($request->rules(), ['id' => 'required']);
+            $validator = Validator::make($data, $rules);
+            if ($validator->fails()) {
+                return $this->error($validator->errors(), 422);
+            } else {
+                $post = $this->repository->update($data, $id);
+                return $this->success($post);
+            }
+        } catch (\Exception $e) {
+            return $this->error($e->getMessage(), 404);
         }
     }
     // delete
     public function delete($id)
     {
         try {
-            $post = $this->repository->delete($id);
-            return response()->json("Delete success");
+            $this->repository->delete($id);
+            return $this->success("Delete success");
         } catch (\Exception $e) {
-            $message = "Not found !";
-            return response()->json($e->getMessage(), 404);
+            return $this->error($e->getMessage(), 404);
         }
     }
 
@@ -74,10 +84,9 @@ class PostController extends Controller
     {
         try {
             $post = $this->repository->find($id);
-            return response()->json($post);
+            return $this->success($post);
         } catch (\Exception $e) {
-            $message = "Not found Post!";
-            return response()->json(compact('message'), 404);
+            return $this->error($e->getMessage(), 404);
         }
     }
 }

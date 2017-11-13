@@ -17,14 +17,11 @@ use Illuminate\Http\Request;
     
 // });
 
-Route::group(['middleware' => 'auth:api'], function () {
-    Route::post('get-details', 'API\PassportController@getDetails');
-});
 
 // ----------------------API-----------------------------
-Route::namespace('API')->group(function () {
+Route::group(['namespace' => 'API','middleware' => 'auth:api'], function () {
     // Controllers Within The "App\Http\Controllers\Admin" Namespace
-    Route::group(['middleware' => 'auth:api', 'prefix' => 'posts'], function () {
+    Route::group(['prefix' => 'posts'], function () {
         Route::post('/', 'PostController@getAll');
         Route::post('create', 'PostController@create');
         Route::post('update', 'PostController@update');
@@ -32,6 +29,9 @@ Route::namespace('API')->group(function () {
         Route::get('{id}', 'PostController@getById');
     });
 
-    Route::post('login', 'PassportController@authenticated');
+    Route::get('me', 'PassportController@me');
+    Route::post('login', 'PassportController@login');
     Route::post('register', 'PassportController@register');
+    Route::post('refreshToken', 'PassportController@refreshToken');
+    Route::get('redirect', 'PassportController@redirect');
 });
